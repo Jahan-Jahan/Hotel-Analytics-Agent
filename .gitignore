@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.idea/
+.vscode/
+.DS_Store
+
+# Secrets
+.env
+
+# Generated charts (keep the folder)
+outputs/charts/*
+!outputs/charts/.gitkeep
+
+# Eval runs: keep latest.md and committed reports, ignore scratch JSON if you prefer
+# evals/results/*.json
