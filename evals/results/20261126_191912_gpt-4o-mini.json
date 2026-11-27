@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "model": "gpt-4o-mini",
+    "timestamp": "2026-11-26 19:19"
+  },
+  "summary": {
+    "cases": 4,
+    "scored": 4,
+    "infra_errors": 0,
+    "passed": 3,
+    "pass_rate": 0.75,
+    "by_category": {
+      "sql": {
+        "cases": 4,
+        "passed": 3,
+        "pass_rate": 0.75
+      }
+    },
+    "sql_execution_accuracy": 0.75,
+    "avg_steps": 2.0,
+    "avg_tool_calls": 1.25,
+    "avg_latency_s": 4.47,
+    "total_tokens": 12389,
+    "sql_errors": 0,
+    "guardrail_blocks": 0
+  },
+  "cases": [
+    {
+      "id": "s02_worst_hotel",
+      "category": "sql",
+      "question": "Which hotel has the higher cancellation rate, and what is that rate (percentage, 1 decimal)?",
+      "passed": true,
+      "detail": "ok",
+      "sql_match": true,
+      "answer_match": true,
+      "steps": 2,
+      "tool_calls": 1,
+      "sql_errors": 0,
+      "blocked": 0,
+      "prompt_tokens": 2966,
+      "completion_tokens": 73,
+      "latency_s": 5.01,
+      "answer": "The hotel with the higher cancellation rate is the **City Hotel**, with a cancellation rate of **30.1%**.",
+      "error": null,
+      "sql_queries": [
+        "SELECT hotel, ROUND(100.0 * AVG(is_canceled), 1) AS cancellation_rate FROM bookings GROUP BY hotel ORDER BY cancellation_rate DESC LIMIT 1;"
+      ],
+      "reference_rows": [
+        [
+          "City Hotel",
+          30.1
+        ]
+      ],
+      "infra_error": false
+    },
+    {
+      "id": "s05_busiest_month",
+      "category": "sql",
+      "question": "Which arrival month had the most bookings? Give the month as YYYY-MM and the number of bookings.",
+      "passed": true,
+      "detail": "ok",
+      "sql_match": true,
+      "answer_match": true,
+      "steps": 2,
+      "tool_calls": 1,
+      "sql_errors": 0,
+      "blocked": 0,
+      "prompt_tokens": 2948,
+      "completion_tokens": 59,
+      "latency_s": 3.64,
+      "answer": "The arrival month with the most bookings was **2017-05** with **4567** bookings.",
+      "error": null,
+      "sql_queries": [
+        "SELECT year_month, COUNT(*) AS bookings_count FROM bookings GROUP BY year_month ORDER BY bookings_count DESC LIMIT 1;"
+      ],
+      "reference_rows": [
+        [
+          "2017-05",
+          4567
+        ]
+      ],
+      "infra_error": false
+    },
+    {
+      "id": "s11_riskiest_segment",
+      "category": "sql",
+      "question": "Among market segments with at least 1000 bookings, which one has the highest cancellation rate, and what is the rate (percentage, 1 decimal)?\n",
+      "passed": true,
+      "detail": "ok",
+      "sql_match": true,
+      "answer_match": true,
+      "steps": 2,
+      "tool_calls": 1,
+      "sql_errors": 0,
+      "blocked": 0,
+      "prompt_tokens": 3019,
+      "completion_tokens": 100,
+      "latency_s": 4.38,
+      "answer": "The market segment with the highest cancellation rate is \"Online TA,\" with a cancellation rate of 35.4%. This is based on segments that have at least 1000 bookings.",
+      "error": null,
+      "sql_queries": [
+        "SELECT market_segment, ROUND(100.0 * AVG(is_canceled), 1) AS cancellation_rate\nFROM bookings\nGROUP BY market_segment\nHAVING COUNT(*) >= 1000\nORDER BY cancellation_rate DESC\nLIMIT 1;"
+      ],
+      "reference_rows": [
+        [
+          "Online TA",
+          35.4
+        ]
+      ],
+      "infra_error": false
+    },
+    {
+      "id": "s12_lead_time_by_outcome",
+      "category": "sql",
+      "question": "What is the average lead time in days (1 decimal) of canceled bookings versus kept bookings?",
+      "passed": false,
+      "detail": "no query matched the reference",
+      "sql_match": false,
+      "answer_match": true,
+      "steps": 2,
+      "tool_calls": 2,
+      "sql_errors": 0,
+      "blocked": 0,
+      "prompt_tokens": 3083,
+      "completion_tokens": 141,
+      "latency_s": 4.86,
+      "answer": "The average lead time for canceled bookings is 105.7 days, while for kept bookings it is 70.2 days. These values reflect the average days between booking and arrival for each category.",
+      "error": null,
+      "sql_queries": [
+        "SELECT ROUND(AVG(lead_time)::numeric, 1) AS avg_lead_time_canceled FROM bookings WHERE is_canceled = 1",
+        "SELECT ROUND(AVG(lead_time)::numeric, 1) AS avg_lead_time_kept FROM bookings WHERE is_canceled = 0"
+      ],
+      "reference_rows": [
+        [
+          105.7,
+          70.2
+        ]
+      ],
+      "infra_error": false
+    }
+  ]
+}
