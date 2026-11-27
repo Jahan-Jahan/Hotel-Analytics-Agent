@@ -1,0 +1,19 @@
+# Runs the demo UI in a container. PostgreSQL and the prediction API are the services from
+# Hotel-Booking-Demand (start them first: `make db-up` and `make serve` there, or its compose file).
+# From inside a container, "localhost" is the container itself, so the host's published ports are
+# reached through host.docker.internal.
+services:
+  ui:
+    build: .
+    image: hotel-analytics-agent
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env                      # LLM_BASE_URL, LLM_API_KEY, LLM_MODEL (never baked into the image)
+    environment:                  # these override the localhost values that .env has for local runs
+      DATABASE_URL: ${DOCKER_DATABASE_URL:-postgresql+psycopg://agent_ro:agent_ro@host.docker.internal:5433/hotel}
+      ADMIN_DATABASE_URL: ${DOCKER_ADMIN_DATABASE_URL:-postgresql+psycopg://hotel:hotel@host.docker.internal:5433/hotel}
+      PREDICT_API_URL: ${DOCKER_PREDICT_API_URL:-http://host.docker.internal:8000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # needed on Linux; Docker Desktop already provides it
+    restart: unless-stopped

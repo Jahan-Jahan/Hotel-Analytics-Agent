@@ -1,0 +1,28 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      # Integration tests need the Hotel-Booking-Demand database and are skipped here;
+      # run them locally with `make test`.
+      - run: pytest -q -m "not integration"
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t hotel-analytics-agent .
+      - name: Smoke test (container starts and serves the UI)
+        run: |
+          docker run -d --name ui -p 8501:8501 -e LLM_API_KEY=dummy hotel-analytics-agent
+          for i in $(seq 1 30); do curl -sf localhost:8501/_stcore/health && break; sleep 2; done
+          curl -sf localhost:8501/_stcore/health
+          docker logs ui
